@@ -7,30 +7,39 @@ A special case:
 - more than one package
 - root
 
-m1.s1.dpfile.com/concat/~mod~zepto-wepp~1.1.3~a/b_c.d.min.js,~mod~underscore2~1.5.3~underscore2.min.js
+Serialization algorithm with convension will be extreme powerful.
 
-->
-
+```
 ~mod~zepto-wepp~1.1.3~a/b_c.d.min.js,~mod~underscore2~1.5.3~underscore2.min.js
+```
 
-->
+```
+~mod~zepto-wepp~1.1.3~a/b_c.d.min.js,~mod~underscore2~1.5.3~underscore2.min.js
+```
 
+```
 // <ext>/<root>/<name>/<version>[/<path>],...
-min.js/mod/zepto-wepp/1.1.3/a/b,underscore/1.5.3
+min.js/mod/zepto-wepp/1.1.3/a/b_c.d,underscore2/1.5.3
+```
 
+```
 1.1.3 -> 10103
 1.5.3 -> 10503
 
 0123456789
 abcdefghij
 
-min.js/mod/zepto-wepp/babad/a/b,underscore/bafad
+min.js/mod/zepto-wepp/babad/a/b_c.d,underscore2/bafad
 
-abcdefghijklmnopqrstuvwxyz
--_./  // allowed in name
+2 -> //d
+```
 
--> 
+```
+abcdefghijklmnopqrstuvwxyz-_./
+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~!*()'
+```
 
-0123456789
-~!*()<>
+```
+
+```
 
