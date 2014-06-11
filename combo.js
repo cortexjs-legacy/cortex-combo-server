@@ -2,13 +2,13 @@ var path = require('path');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
 var es = require('event-stream');
+var async = require('async');
 var cssParser = require('css-absolute-image-path');
+
 module.exports = function(config) {
   var root = config.root;
   var combine_dir = config.combine_dir;
-  return function(req, res) {
-
-    console.log('here');
+  return function(req, res, next) {
 
     function split(p) {
       return p.slice(1).split(",").map(function(item) {
@@ -30,26 +30,39 @@ module.exports = function(config) {
 
 
     mkdirp(path.dirname(filepath), function(err) {
-      var filestreams = paths.map(function(filepath) {
-        function write(data) {
-          this.emit('data', parser.parse(filepath));
+      if (err) {
+        return res.send(404);
+      }
+
+      async.map(paths, function(filepath, done) {
+        fs.exists(filepath, function(exists) {
+          if (!exists) {
+            return done(filepath + ' not exists');
+          }
+
+          function write(data) {
+            this.emit('data', parser.parse(filepath));
+          }
+
+          function end() {
+            this.emit('end');
+          }
+
+          var through = es.through(write, end);
+
+          done(null, fs.createReadStream(filepath).pipe(through));
+        });
+      }, function(err, filestreams) {
+        if (err) {
+          return res.send(404, err);
         }
-
-        function end() {
-          this.emit('end');
-        }
-
-        var through = es.through(write, end);
-        return fs.createReadStream(filepath).pipe(through);
+        var result = es.merge.apply(es, filestreams);
+        var dest = fs.createWriteStream(filepath);
+        result.pipe(dest);
+        dest.on('close', function() {
+          res.sendfile(filepath);
+        });
       });
-      var result = es.merge.apply(es, filestreams);
-      var dest = fs.createWriteStream(filepath);
-      result.pipe(dest);
-      dest.on('close', function() {
-        res.sendfile(filepath);
-      });
-
     });
-
   }
 }
