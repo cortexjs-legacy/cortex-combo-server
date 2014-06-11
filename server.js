@@ -10,3 +10,5 @@ var config = {
 };
 app.use('/combine', combo(config))
 app.listen(3721);
+
+module.exports = app;

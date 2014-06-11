@@ -36,34 +36,37 @@ function dynamic(req, res, next, root, cache_path) {
       return res.send(404);
     }
 
-    async.map(paths, function(filepath, done) {
+
+    async.mapSeries(paths, function(filepath, done) {
       fs.exists(filepath, function(exists) {
         if (!exists) {
-          return done(filepath + ' not exists');
+          return done(path.relative(root, filepath) + ' not exists');
         }
-
-        function write(data) {
-          this.emit('data', parser.parse(filepath));
-        }
-
-        function end() {
-          this.emit('end');
-        }
-
-        var through = es.through(write, end);
-
-        done(null, fs.createReadStream(filepath).pipe(through));
+        done(null);
       });
-    }, function(err, filestreams) {
+    }, function(err) {
       if (err) {
         return res.send(404, err);
       }
+
+      var filestreams = [];
+
+      paths.forEach(function(filepath) {
+        function write(data) {
+          this.queue(parser.parse(filepath));
+        }
+
+        function end() {
+          this.queue(null);
+        }
+
+        var through = es.through(write, end);
+        filestreams.push(fs.createReadStream(filepath).pipe(through));
+      });
       var result = es.merge.apply(es, filestreams);
       var dest = fs.createWriteStream(cache_path);
       result.pipe(dest);
-      dest.on('close', function() {
-        res.sendfile(cache_path);
-      });
+      result.pipe(res);
     });
   });
 }
@@ -74,11 +77,11 @@ module.exports = function(config) {
   return function(req, res, next) {
     var cache_path = path.join(combine_dir, md5(req.path) + path.extname(req.path));
     fs.exists(cache_path, function(exists) {
-      if (exists) {
-        res.sendfile(cache_path);
-      } else {
-        dynamic(req, res, next, root, cache_path);
-      }
+      // if (exists) {
+      //   res.sendfile(cache_path);
+      // } else {
+      dynamic(req, res, next, root, cache_path);
+      // }
     });
 
   }
