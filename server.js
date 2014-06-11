@@ -8,6 +8,5 @@ var config = {
   root: path.join(__dirname, './static'),
   combine_dir: path.join(__dirname, './combine'),
 };
-app.use('/combine', express.static(config.combine_dir))
 app.use('/combine', combo(config))
 app.listen(3721);
