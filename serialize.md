@@ -1,8 +1,17 @@
-http://m1.s1.dpfile.com/concat/~mod~zepto-wepp~1.1.3~a/b.min.js,~mod~underscore~1.5.3~underscore.min.js
+A special case:
+
+- name: alphabet, number
+- version
+- path: _ .
+- ext
+- more than one package
+- root
+
+m1.s1.dpfile.com/concat/~mod~zepto-wepp~1.1.3~a/b_c.d.min.js,~mod~underscore2~1.5.3~underscore2.min.js
 
 ->
 
-~mod~zepto-wepp~1.1.3~zepto-wepp.min.js,~mod~underscore~1.5.3~underscore.min.js
+~mod~zepto-wepp~1.1.3~a/b_c.d.min.js,~mod~underscore2~1.5.3~underscore2.min.js
 
 ->
 
@@ -15,7 +24,7 @@ min.js/mod/zepto-wepp/1.1.3/a/b,underscore/1.5.3
 0123456789
 abcdefghij
 
-min.js/zepto-wepp-babad,underscore-bafad
+min.js/mod/zepto-wepp/babad/a/b,underscore/bafad
 
 abcdefghijklmnopqrstuvwxyz
 -_./  // allowed in name
