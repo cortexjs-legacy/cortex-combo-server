@@ -5,6 +5,7 @@ var es = require('event-stream');
 var async = require('async');
 var cssParser = require('css-absolute-image-path');
 var crypto = require('crypto');
+var Buffer = require('buffer').Buffer;
 
 function md5(str) {
   var md5sum = crypto.createHash('md5');
@@ -52,12 +53,16 @@ function dynamic(req, res, next, root, cache_path) {
       var filestreams = [];
 
       paths.forEach(function(filepath) {
+        var buffer = [];
+
         function write(data) {
-          this.queue(parser.parse(filepath));
+          buffer.push(parser.parse(filepath));
         }
 
         function end() {
-          this.queue(null);
+          var content = Buffer.concat(buffer);
+          this.emit('data', content);
+          this.emit('end');
         }
 
         var through = es.through(write, end);

@@ -35,13 +35,13 @@ describe('combo-server', function() {
       });
   });
 
-  it('with background image not exists', function() {
+  it('with background image not exists', function(done) {
     request
       .get('/combine/dir~nbg.css')
       .expect(200)
       .end(function(err, res) {
         if (err) throw err;
-        // console.log(res.text);
+        assert.equal(res.text, fs.readFileSync(path.join(__dirname, 'expected', 'nbg.css'), 'utf8'));
         done();
       });
   });
