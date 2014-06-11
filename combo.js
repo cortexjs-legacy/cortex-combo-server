@@ -70,7 +70,7 @@ module.exports = function(config) {
   var root = config.root;
   var combine_dir = config.combine_dir;
   return function(req, res, next) {
-    var cache_path = path.join(combine_dir, md5(req.path));
+    var cache_path = path.join(combine_dir, md5(req.path) + path.extname(req.path));
     fs.exists(cache_path, function(exists) {
       if (exists) {
         res.sendfile(cache_path);
