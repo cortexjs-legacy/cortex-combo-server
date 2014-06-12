@@ -20,7 +20,7 @@
 5. prepare start script  `echo 'pm2 start _server.js -i max --name "cortex-combo-server"' > start.sh && chmod +x start.sh`
 5. prepare restart script  `echo 'npm install && pm2 restart "cortex-combo-server"' > restart.sh && chmod +x restart.sh`
 6. start server `./start.sh`
-7. config nginx
+7. config nginx and reload
 ```
     location /combine {
         proxy_pass http://127.0.0.1:<port>;
