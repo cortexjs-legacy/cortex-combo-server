@@ -5,6 +5,7 @@ var es = require('event-stream');
 var async = require('async');
 var cssParser = require('css-absolute-image-path');
 var crypto = require('crypto');
+var resumer = require('resumer');
 var Buffer = require('buffer').Buffer;
 
 function md5(str) {
@@ -14,16 +15,23 @@ function md5(str) {
   return str;
 }
 
+function generateComments(paths){
+  var content = "/**\n * Combo Server\n" + paths.map(function(p){
+    return ' * ' + p;
+  }).join('\n') + "\n */\n";
+  return content
+}
+
 function dynamic(req, res, next, root, cache_path) {
   function split(p) {
     return p.slice(1).split(",").map(function(item) {
       return item.replace(/~/g, '/');
-    }).map(function(item) {
-      return path.join(root, item);
     });
   }
-
-  var paths = split(req.path);
+  var urlpaths = split(req.path);
+  var paths = urlpaths.map(function(item) {
+    return path.join(root, item);
+  });
   var parser = new cssParser({
     root_dir: root,
     root_path: "./",
@@ -50,7 +58,8 @@ function dynamic(req, res, next, root, cache_path) {
         return res.send(404, err);
       }
 
-      var filestreams = [];
+
+      var filestreams = [resumer().queue(generateComments(urlpaths)).end()];
 
       paths.forEach(function(filepath) {
         var buffer = [];
@@ -65,8 +74,7 @@ function dynamic(req, res, next, root, cache_path) {
           this.emit('end');
         }
 
-        var through = es.through(write, end);
-        filestreams.push(fs.createReadStream(filepath).pipe(through));
+        filestreams.push(fs.createReadStream(filepath).pipe(es.through(write, end)));
       });
       var result = es.merge.apply(es, filestreams);
       var dest = fs.createWriteStream(cache_path);
