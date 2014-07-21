@@ -35,7 +35,7 @@ function dynamic(req, res, next, root, cache_path) {
   var parser = new cssParser({
     root_dir: root,
     root_path: "./",
-    md5: true,
+    md5: false,
     allow_image_miss: true,
     hosts: [req.headers.host]
   });
